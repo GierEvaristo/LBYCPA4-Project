@@ -18,10 +18,6 @@ augmentation = imageDataAugmenter( ...
 % Perform data augmentation on training data
 trainingImds = augmentedImageDatastore([136 136],trainingImds,'ColorPreprocessing','gray2rgb','DataAugmentation', augmentation);
 
-% Reshape validation and test data as well
-validationImds = augmentedImageDatastore([136 136],validationImds,'ColorPreprocessing','gray2rgb');
-testImds = augmentedImageDatastore([136 136],testImds,'ColorPreprocessing','gray2rgb');
-
 figure;
 perm = randperm(1494,20);
 for i = 1:20
