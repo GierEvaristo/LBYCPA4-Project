@@ -1,21 +1,20 @@
 imdsPath = fullfile('ut-zap50k-images-square');
 imds = imageDatastore(imdsPath,'IncludeSubfolders',true,'LabelSource','foldernames');
 
-% Perform the train-test split
+% Perform the train-test-validation split
 [trainingImds, validationImds] = splitEachLabel(imds, 0.8);
 [validationImds, testImds] = splitEachLabel(validationImds,0.5);
 
 augmentation = imageDataAugmenter( ...
-    'RandRotation', [-10, 10], ...  % Random rotation between -10 and 10 degrees
-    'RandXTranslation', [-30, 30], ...  % Random horizontal translation between -30 and 30 pixels
-    'RandYTranslation', [-30, 30], ...  % Random vertical translation between -30 and 30 pixels
-    'RandXScale', [0.8, 1.2], ...  % Random horizontal scaling between 0.8 and 1.2
-    'RandYScale', [0.8, 1.2], ...  % Random vertical scaling between 0.8 and 1.2
-    'RandXShear', [-20, 20], ...  % Random horizontal shear between -20 and 20 degrees
-    'RandYShear', [-20, 20] ...  % Random vertical shear between -20 and 20 degrees
+    'RandRotation', [-10, 10], ...
+    'RandXTranslation', [-30, 30], ...
+    'RandYTranslation', [-30, 30], ...
+    'RandXScale', [0.8, 1.2], ...
+    'RandYScale', [0.8, 1.2], ...
+    'RandXShear', [-20, 20], ...
+    'RandYShear', [-20, 20] ...
 );
 
-% Perform data augmentation on training data
 trainingImds = augmentedImageDatastore([136 136],trainingImds,'ColorPreprocessing','gray2rgb','DataAugmentation', augmentation);
 
 figure;
@@ -28,37 +27,37 @@ end
 layers = [
     imageInputLayer([136 136 3]) % Input layer for a 136x136 RGB image
     
-    convolution2dLayer(11, 96, 'Stride', 4, 'Padding', 0) % Convolutional layer 1
-    reluLayer % ReLU activation layer
-    crossChannelNormalizationLayer(5) % Cross-channel normalization layer
-    maxPooling2dLayer(3, 'Stride', 2) % Max pooling layer
+    convolution2dLayer(11, 96, 'Stride', 4, 'Padding', 0)
+    reluLayer
+    crossChannelNormalizationLayer(5)
+    maxPooling2dLayer(3, 'Stride', 2)
     
-    convolution2dLayer(5, 256, 'Stride', 1, 'Padding', 2) % Convolutional layer 2
-    reluLayer % ReLU activation layer
-    crossChannelNormalizationLayer(5) % Cross-channel normalization layer
-    maxPooling2dLayer(3, 'Stride', 2) % Max pooling layer
+    convolution2dLayer(5, 256, 'Stride', 1, 'Padding', 2)
+    reluLayer
+    crossChannelNormalizationLayer(5)
+    maxPooling2dLayer(3, 'Stride', 2)
     
-    convolution2dLayer(3, 384, 'Stride', 1, 'Padding', 1) % Convolutional layer 3
-    reluLayer % ReLU activation layer
+    convolution2dLayer(3, 384, 'Stride', 1, 'Padding', 1)
+    reluLayer
     
-    convolution2dLayer(3, 384, 'Stride', 1, 'Padding', 1) % Convolutional layer 4
-    reluLayer % ReLU activation layer
+    convolution2dLayer(3, 384, 'Stride', 1, 'Padding', 1)
+    reluLayer
     
-    convolution2dLayer(3, 256, 'Stride', 1, 'Padding', 1) % Convolutional layer 5
-    reluLayer % ReLU activation layer
-    maxPooling2dLayer(3, 'Stride', 2) % Max pooling layer
+    convolution2dLayer(3, 256, 'Stride', 1, 'Padding', 1)
+    reluLayer
+    maxPooling2dLayer(3, 'Stride', 2)
     
-    fullyConnectedLayer(4096) % Fully connected layer 1
-    reluLayer % ReLU activation layer
-    dropoutLayer(0.5) % Dropout layer for regularization
+    fullyConnectedLayer(4096)
+    reluLayer
+    dropoutLayer(0.5)
     
-    fullyConnectedLayer(4096) % Fully connected layer 2
-    reluLayer % ReLU activation layer
-    dropoutLayer(0.5) % Dropout layer for regularization
+    fullyConnectedLayer(4096)
+    reluLayer
+    dropoutLayer(0.5)
     
-    fullyConnectedLayer(4) % Fully connected layer 3 (output layer)
-    softmaxLayer % Softmax activation layer
-    classificationLayer % Classification layer
+    fullyConnectedLayer(4)
+    softmaxLayer
+    classificationLayer
 ];
 
 options = trainingOptions('sgdm', ...
@@ -74,7 +73,3 @@ options = trainingOptions('sgdm', ...
 net = trainNetwork(trainingImds,layers,options);
 save("net.mat","net");
 save("testImds.mat","testImds");
-
-% YPred = classify(net,validationImds);
-% YValidation = validationImds.Labels;
-% accuracy = sum(YPred == YValidation)/numel(YValidation);
