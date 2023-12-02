@@ -5,7 +5,7 @@ load("testImds.mat","testImds");
 pred = classify(net,testImds);
 test = testImds.Labels;
 
-figure;
+figure(1)
 perm = randperm(1494,20);
 for i = 1:20
     subplot(4,5,i);
@@ -15,3 +15,5 @@ for i = 1:20
 end
 
 accuracy = sum(pred == test)/numel(test);
+figure(2)
+plotconfusion(test,pred)

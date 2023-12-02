@@ -15,7 +15,8 @@ augmentation = imageDataAugmenter( ...
     'RandYShear', [-20, 20] ...
 );
 
-trainingImds = augmentedImageDatastore([136 136],trainingImds,'ColorPreprocessing','gray2rgb','DataAugmentation', augmentation);
+trainingImds = augmentedImageDatastore([136 136],trainingImds,...
+    'ColorPreprocessing','gray2rgb','DataAugmentation', augmentation);
 
 figure;
 perm = randperm(1494,20);
